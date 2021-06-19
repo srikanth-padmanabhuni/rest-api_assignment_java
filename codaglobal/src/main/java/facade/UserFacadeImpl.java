@@ -13,11 +13,14 @@ import dto.Mapper;
 import dto.User;
 import entities.Users;
 import exceptions.InvalidDetailsException;
+import ninja.utils.NinjaProperties;
 
 public class UserFacadeImpl implements UserFacade{
 	private static Logger log = LogManager.getLogger(UserFacadeImpl.class);
 	@Inject 
 	Provider<EntityManager> entityManagerProvider;
+	@Inject
+	private NinjaProperties ninjaProperties;
 	
 	@Override
 	public Long createUser(User user) throws InvalidDetailsException {
@@ -43,7 +46,8 @@ public class UserFacadeImpl implements UserFacade{
 		users.setUserName(user.getuName());
 		users.setBio(user.getuBio());
 		users.setProfilePicUrl(user.getuProfilePic());
-		users.setPassword(user.getPassword());
+		String encryptedPassword = Mapper.encryptAES(ninjaProperties, user.getPassword());
+		users.setPassword(encryptedPassword);
 		entityManager.persist(users);
 		return users.getId();
 	}
